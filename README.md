@@ -1,6 +1,6 @@
 # Wealth of Health and Nutrition
 
-A team machine-learning project studying **which nutrition and exercise factors
+A machine-learning project studying **which nutrition and exercise factors
 predict metabolic health**, using [NHANES](https://wwwn.cdc.gov/nchs/nhanes/Default.aspx)
 (National Health and Nutrition Examination Survey) data from the CDC.
 
@@ -53,6 +53,36 @@ See [data/README.md](data/README.md) for how to obtain the raw data.
    ```bash
    jupyter notebook
    ```
+
+## Running on Google Colab
+
+Colab is convenient because our data already lives in Google Drive — you can mount
+it and skip local downloads. Start from [notebooks/00_colab_setup.ipynb](notebooks/00_colab_setup.ipynb),
+or run these cells at the top of any notebook:
+
+```python
+# 1. Clone the repo (or `git pull` if already cloned)
+!git clone https://github.com/<your-org>/Wealth_of_Healh_and_Nutrition.git
+%cd Wealth_of_Healh_and_Nutrition
+
+# 2. Install dependencies
+!pip install -r requirements.txt
+
+# 3. Mount Google Drive (where the NHANES files live)
+from google.colab import drive
+drive.mount('/content/drive')
+
+# 4. Point the loaders at the Drive data folder (no download needed)
+import os
+os.environ["NHANES_RAW_DIR"] = "/content/drive/MyDrive/<path-to-nhanes-folder>"
+
+# 5. Import the project modules
+from src import data_loading, preprocessing, target, features
+```
+
+Update the clone URL and the Drive path once the repo and shared folder are set.
+`src/data_loading.py` reads `NHANES_RAW_DIR` if set, so no code changes are needed
+to switch between local and Colab runs.
 
 ## Branch workflow
 

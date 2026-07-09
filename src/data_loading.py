@@ -9,13 +9,21 @@ These stubs define the loading/merging interface; implementations are TBD.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
 
-# Directory holding the downloaded raw NHANES files (gitignored).
-RAW_DATA_DIR = Path(__file__).resolve().parents[1] / "data" / "raw"
+# Directory holding the raw NHANES files (gitignored locally).
+# Override with the NHANES_RAW_DIR env var — e.g. on Google Colab point it at the
+# mounted Drive folder: os.environ["NHANES_RAW_DIR"] = "/content/drive/MyDrive/nhanes".
+RAW_DATA_DIR = Path(
+    os.environ.get(
+        "NHANES_RAW_DIR",
+        Path(__file__).resolve().parents[1] / "data" / "raw",
+    )
+)
 
 # NHANES cycles pooled in this project (2013-2018) and their file suffixes.
 CYCLE_SUFFIXES = {"2013-2014": "_H", "2015-2016": "_I", "2017-2018": "_J"}
