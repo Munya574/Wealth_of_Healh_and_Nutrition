@@ -54,6 +54,32 @@ See [data/README.md](data/README.md) for how to obtain the raw data.
    jupyter notebook
    ```
 
+## Data pipeline
+
+Two processed files are produced from the raw NHANES data. **Both are gitignored**
+— get them from the shared Google Drive, or regenerate locally:
+
+```bash
+python -m src.data_loading    # -> data/processed/nhanes_merged.csv
+python -m src.preprocessing   # -> data/processed/nhanes_clean.csv
+```
+
+| File | What it is | Use |
+|------|-----------|-----|
+| `nhanes_merged.csv` | Full raw union of all 13 components across the 3 cycles (29,400 × 502) | source of truth / backup |
+| **`nhanes_clean.csv`** | Curated 36-col table: readable names, sleep reconciled across cycles, sentinel codes → blank | **use this for EDA & modeling** |
+
+Key things to know:
+- **`uid` is the row key** (`cycle` + `SEQN`). `SEQN` alone is *not* unique across
+  cycles, so always key on `uid`.
+- **Treat `nhanes_clean.csv` as the frozen shared input.** Don't rebuild the
+  pipeline inside each notebook — everyone loads the *same* file so results are
+  comparable. If the clean file needs a fix, change it once in `src/` and
+  regenerate.
+- **~16,500 rows** have all core metabolic markers (waist, HbA1c, HDL, systolic
+  BP) — that's the realistic modeling sample. Blank cells elsewhere are expected
+  (NHANES doesn't run every test on every person), not errors.
+
 ## Running on Google Colab
 
 Colab is convenient because our data already lives in Google Drive — you can mount
@@ -62,7 +88,7 @@ or run these cells at the top of any notebook:
 
 ```python
 # 1. Clone the repo (or `git pull` if already cloned)
-!git clone https://github.com/<your-org>/Wealth_of_Healh_and_Nutrition.git
+!git clone https://github.com/Munya574/Wealth_of_Healh_and_Nutrition.git
 %cd Wealth_of_Healh_and_Nutrition
 
 # 2. Install dependencies
@@ -98,4 +124,34 @@ git checkout -b data-cleaning
 git checkout -b feature-modeling
 git checkout -b recommendation
 git checkout -b eda
+```
+
+## Notebook workflow
+
+Notebooks live in `notebooks/`. **One notebook per analysis/model** (e.g. a
+separate notebook for KNN, LR, RF) so people don't edit the same file and hit
+merge conflicts.
+
+**Colab ↔ GitHub:**
+- **Open from GitHub:** in Colab, `File → Open notebook → GitHub tab`, pick the repo
+  and branch.
+- **Save to GitHub:** `File → Save a copy in GitHub` → choose **your feature
+  branch** and write a commit message. **Never save to `main`.**
+- **Clear outputs before saving/committing** (`Edit → Clear all outputs`) — keeps
+  git diffs small and the repo light.
+
+**Every model notebook should:**
+1. Load `data/processed/nhanes_clean.csv` (from Drive on Colab).
+2. Build the target and train/test split the **same way** (shared setup — see
+   `src/target.py`).
+3. Differ **only** in the model, so KNN / LR / RF are compared on identical data.
+
+**Adding a notebook you downloaded (not via Colab's GitHub save):**
+```bash
+git checkout feature-modeling        # your feature branch
+# put the .ipynb in notebooks/
+git add notebooks/
+git commit -m "Add <name> notebook"
+git push -u origin feature-modeling
+# then open a Pull Request into main on GitHub
 ```

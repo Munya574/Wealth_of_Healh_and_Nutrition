@@ -33,9 +33,10 @@ To get set up:
 
 1. Open the folder above. If you can't access it, ask a teammate to share it with
    your Google account.
-2. Download the NHANES component files (`.XPT`, or `.csv` if converted).
-3. Place them in your local `data/raw/` folder (this folder is gitignored, so the
-   files stay on your machine only — never commit them).
+2. Download the NHANES component files (`.xpt`).
+3. Place them in your local `data/raw/` folder, organized by cycle (see layout
+   below). This folder is gitignored, so the files stay on your machine only —
+   never commit them.
 
 If a file is missing from the Drive, it can also be re-downloaded from the CDC
 portal linked above.
@@ -48,27 +49,42 @@ data/processed/
 
 Both folders stay on your machine only.
 
-## Component files needed
+## Local layout
 
-<!-- PLACEHOLDER — confirm exact NHANES file codes against the Drive folder. -->
-<!-- Base names below are the standard NHANES codes; each exists per cycle with -->
-<!-- the _H / _I / _J suffix (e.g. DEMO_H, DEMO_I, DEMO_J). VERIFY before use. -->
+Files are organized into one subfolder per cycle:
 
-We merge NHANES components on the respondent sequence number **`SEQN`**. Base file
-codes below are the standard NHANES names — each should exist once per cycle with
-the `_H` / `_I` / `_J` suffix. **Verify these against the actual Drive contents and
-tick them off:**
+```
+data/raw/
+├── 2013-2014/   # *_H.xpt
+├── 2015-2016/   # *_I.xpt
+└── 2017-2018/   # *_J.xpt
+```
 
-| Component     | Base file code(s)                                  | Cycles      | Key variables (notes)                        |
-|---------------|----------------------------------------------------|-------------|----------------------------------------------|
-| Demographics  | `DEMO`                                              | H / I / J   | age, sex, race/ethnicity, income, weights    |
-| Dietary       | `DR1TOT`, `DR2TOT`                                  | H / I / J   | nutrient intake (day 1 / day 2)              |
-| Examination   | `BMX`, `BPX`                                        | H / I / J   | body measures, waist circ., blood pressure   |
-| Laboratory    | `GLU`, `GHB`, `TCHOL`, `HDL`, `TRIGLY`, `INS`      | H / I / J   | glucose, HbA1c, lipids, insulin              |
-| Questionnaire | `PAQ`, `DBQ`, `SMQ`, `ALQ`                          | H / I / J   | physical activity, diet behavior, smoking, alcohol |
+## Component files
 
-<!-- TODO: after confirming against the Drive, replace this comment with the
-     exact filenames present, e.g.:
-     - DEMO_H.XPT, DEMO_I.XPT, DEMO_J.XPT
-     - DR1TOT_H.XPT, ...
--->
+We merge NHANES components on the respondent sequence number **`SEQN`**. The
+following 13 components are present in **each** cycle (`_H` / `_I` / `_J` suffix):
+
+| Component     | File code | Group         | Key variables (notes)                              |
+|---------------|-----------|---------------|----------------------------------------------------|
+| Demographics  | `DEMO`    | Demographics  | age, sex, race/ethnicity, income, survey weights   |
+| Dietary       | `DR1TOT`  | Dietary       | day-1 total nutrient intake                        |
+| Body measures | `BMX`     | Examination   | BMI, **waist circumference** (`BMXWAIST`)          |
+| Blood pressure| `BPX`     | Examination   | systolic / diastolic BP                            |
+| HbA1c         | `GHB`     | Laboratory    | glycohemoglobin (glycemic marker)                  |
+| HDL           | `HDL`     | Laboratory    | HDL cholesterol                                    |
+| Total chol.   | `TCHOL`   | Laboratory    | total cholesterol                                  |
+| Triglycerides | `TRIGLY`  | Laboratory    | triglycerides (+ LDL)                              |
+| Phys. activity| `PAQ`     | Questionnaire | physical activity                                  |
+| Alcohol       | `ALQ`     | Questionnaire | alcohol use                                        |
+| Smoking       | `SMQ`     | Questionnaire | smoking status                                     |
+| Sleep         | `SLQ`     | Questionnaire | sleep duration / disorders                         |
+| Food security | `FSQ`     | Questionnaire | household food security                            |
+
+### Notes for the metabolic-composite target
+
+The panel supports a metabolic-syndrome-style composite from: **waist** (`BMX`),
+**triglycerides** & **HDL** (`TRIGLY`, `HDL`), **blood pressure** (`BPX`), and a
+**glycemic marker** (`GHB` / HbA1c). Note there is **no fasting glucose (`GLU`) or
+insulin (`INS`) file** — HbA1c stands in as the glycemic component. Only day-1
+dietary (`DR1TOT`) is included (no `DR2TOT`).
