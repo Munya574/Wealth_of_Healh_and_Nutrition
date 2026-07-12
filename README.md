@@ -132,6 +132,17 @@ Notebooks live in `notebooks/`. **One notebook per analysis/model** (e.g. a
 separate notebook for KNN, LR, RF) so people don't edit the same file and hit
 merge conflicts.
 
+### Notebooks (open in Colab)
+
+Badges open the copy on `main`, so they go live once a notebook is merged there.
+
+| Notebook | Open |
+|----------|------|
+| Colab setup | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Munya574/Wealth_of_Healh_and_Nutrition/blob/main/notebooks/00_colab_setup.ipynb) |
+| K-Means clustering | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Munya574/Wealth_of_Healh_and_Nutrition/blob/main/notebooks/K_MeansClustering.ipynb) |
+| Logistic Regression | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Munya574/Wealth_of_Healh_and_Nutrition/blob/main/notebooks/LogisticRegression.ipynb) |
+| Random Forest | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Munya574/Wealth_of_Healh_and_Nutrition/blob/main/notebooks/RandomForest.ipynb) |
+
 **Colab ↔ GitHub:**
 - **Open from GitHub:** in Colab, `File → Open notebook → GitHub tab`, pick the repo
   and branch.
