@@ -28,6 +28,7 @@ These stubs define the interface; the Task 1 owner fills in the implementations.
 
 from __future__ import annotations
 
+from numpy import nan
 import pandas as pd
 
 # Thresholds for the 5 metabolic-syndrome criteria (harmonized definition, with
@@ -67,11 +68,11 @@ def build_metabolic_target(df: pd.DataFrame) -> pd.Series:
     """
 
     flags = score_metabolic_components(df)
-    scores = flags.sum(axis=1, min_count=5)
-    return binarize_target(scores)
 
+    observed_scores = flags.sum(axis=1, skipna=True)
+    missing_flags = flags.isna().sum(axis=1)
 
-
+    return binarize_target(observed_scores, missing_flags)
 
 def score_metabolic_components(df: pd.DataFrame) -> pd.DataFrame:
     """Compute the 5 metabolic-syndrome flags (one boolean column each).
@@ -141,13 +142,20 @@ def score_metabolic_components(df: pd.DataFrame) -> pd.DataFrame:
         ]
     ]
 
-def binarize_target(flag_count: pd.Series, threshold: int = MSYN_FLAG_COUNT) -> pd.Series:
-    """Convert the per-person flag count into the binary 0/1 label.
+def binarize_target(flag_count: pd.Series, missing_flags: pd.Series, threshold: int = MSYN_FLAG_COUNT) -> pd.Series:
+    """Convert metabolic component counts into a binary label.
+
+    Rows are labelled:
+    - 1 if even the minimum possible score reaches the threshold.
+    - 0 if even the maximum possible score is below the threshold.
+    - NA if missing components make the final classification uncertain.
 
     Parameters
     ----------
     flag_count
         Number of metabolic-syndrome criteria met per person (0–5).
+    missing_flags:
+        Number of criteria missing (0–5).
     threshold
         Minimum flags to be labelled at-risk. Defaults to
         :data:`MSYN_FLAG_COUNT` (3).
@@ -157,4 +165,12 @@ def binarize_target(flag_count: pd.Series, threshold: int = MSYN_FLAG_COUNT) -> 
     pandas.Series
         Binary (0/1) label; ``NA`` preserved where the count is unknown.
     """
-    return (flag_count >= threshold).astype("Int64")
+    definitely_positive = flag_count >= threshold
+    definitely_negative = (flag_count + missing_flags) < threshold
+
+    target = pd.Series(pd.NA, index=flag_count.index, dtype="Int64")
+
+    target.loc[definitely_positive] = 1
+    target.loc[definitely_negative] = 0
+
+    return target
