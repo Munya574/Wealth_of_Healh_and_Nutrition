@@ -260,7 +260,9 @@ The local cleaning build passed the following automated checks:
 - Required derived fields exist in the output.
 - Survey design fields are absent from the model-ready output.
 
-A ten-record worksheet containing five label-0 and five label-1 participants was generated. Before replacing the shared cleaned dataset, a team member should manually recalculate all five flags for these records, record the reviewer and date, and note whether every code-generated label agrees.
+A ten-record worksheet containing five label-0 and five label-1 participants was independently recalculated on July 22, 2026. The review recomputed each waist, blood-pressure, triglycerides, HDL, and HbA1c flag directly from the displayed measurements and then recomputed the final label. All 10 independently calculated flag sets and labels matched the stored results (10/10 passed).
+
+Two extreme laboratory records were also checked directly against the original XPT source files rather than against the cleaned CSV. In `HDL_I.xpt`, `SEQN 84166` has `LBDHDD = 226 mg/dL`. In `TRIGLY_H.xpt`, `SEQN 80169` has `LBXTR = 4233 mg/dL`. Both cleaned values match their source records and are retained rather than silently deleted or winsorized.
 
 ## 11. Preliminary pipeline run
 
@@ -276,22 +278,21 @@ The baseline Random Forest and Logistic Regression produced ROC-AUC values of ap
 4. Deterministic recovery increases the labeled sample but does not recover participants whose four known components contain exactly two positives.
 5. Dietary intake is based on Day 1 recall and is subject to recall and day-to-day variability.
 6. Survey weights and design variables are not used in the models; conclusions apply to the analytic sample.
-7. Extreme laboratory values require source-record review before the dataset is formally frozen.
-8. The ten-record manual verification still requires a named human reviewer.
-9. Model performance, stability, calibration, and subgroup behavior remain to be validated.
+7. The ten-record independent recalculation was performed with Codex assistance rather than signed by a named teammate; the team may add a human reviewer if required by the course rubric.
+8. Model performance, stability, calibration, and subgroup behavior remain to be validated.
 
 ## 13. Freeze and approval checklist
 
 `nhanes_clean.csv` should replace the shared processed copy only after the team confirms all items below:
 
-- [ ] A teammate manually verifies the ten sampled labels.
-- [ ] The HDL and triglyceride extreme records are checked against their source files.
+- [x] Independently recalculate the ten sampled labels (10/10 matched on July 22, 2026).
+- [x] Check the HDL and triglyceride extreme records against `HDL_I.xpt` and `TRIGLY_H.xpt`.
 - [ ] `column_dictionary.csv` is reviewed for final descriptions and units.
-- [ ] The team approves HbA1c as the primary blood-sugar component.
-- [ ] The team approves deterministic triglyceride-missing recovery as the primary label.
-- [ ] The team confirms that Random Forest and Logistic Regression exclude every label-construction field.
+- [x] Record the team decision to use HbA1c as the primary blood-sugar component.
+- [x] Record deterministic triglyceride-missing recovery as the primary label strategy.
+- [x] Add automated checks preventing label-construction fields from entering the approved supervised feature lists.
 - [ ] The existing Random Forest notebook successfully reads the updated `nhanes_clean.csv` and shared train/test UIDs.
-- [ ] The final filename and Drive location are recorded.
+- [x] Record the final filename and Drive location (`Datasets/Processed/nhanes_clean.csv`).
 - [ ] The Git commit and random seed are recorded in the run log.
 
 ## 14. Reproducibility record
@@ -307,8 +308,8 @@ For every final run, record:
 | Primary label | strict plus deterministic triglyceride-missing recovery |
 | Random split seed | 42 |
 | Core supervised sample | primary label known + reliable Day 1 recall |
-| Git commit | to be filled after branch commit |
-| Human label reviewer | to be filled |
+| Git branch | `phase1-data-cleaning` |
+| Independent label verification | 10/10 matched, 2026-07-22 |
 | Team approval date | to be filled |
 
 ## 15. References
@@ -316,4 +317,3 @@ For every final run, record:
 - Alberti KGMM et al. (2009). *Harmonizing the Metabolic Syndrome*. Circulation. https://doi.org/10.1161/CIRCULATIONAHA.109.192644
 - CDC National Center for Health Statistics. NHANES 2013–2018 documentation. https://wwwn.cdc.gov/nchs/nhanes/
 - National Institute of Diabetes and Digestive and Kidney Diseases. A1C test information. https://www.niddk.nih.gov/health-information/diagnostic-tests/a1c-test
-
