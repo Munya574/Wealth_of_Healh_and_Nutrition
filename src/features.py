@@ -1,75 +1,56 @@
-"""Feature selection and engineering for the metabolic-health models.
-
-Focus is on nutrition and physical-activity predictors. This module derives
-engineered features and selects the subset fed to the models.
-
-These stubs define the interface; implementations are TBD.
-"""
+"""Single source of truth for model feature and exclusion lists."""
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 import pandas as pd
 
 
-def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Derive engineered features (ratios, indices, aggregates, etc.).
+LABEL_COLUMNS = [
+    "waist_cm", "bp_systolic_mean", "bp_diastolic_mean", "triglycerides",
+    "hdl", "hba1c", "waist_flag", "bp_flag", "triglycerides_flag",
+    "hdl_flag", "hba1c_flag", "metabolic_component_count_known",
+    "metabolic_component_known_n", "metabolic_syndrome_strict",
+    "metabolic_syndrome", "label_basis",
+]
 
-    Parameters
-    ----------
-    df
-        Cleaned DataFrame.
+RF_FEATURES = [
+    "energy_kcal", "protein_g", "carb_g", "sugar_g", "fat_total_g",
+    "fat_sat_g", "fiber_g", "sodium_mg", "potassium_mg",
+    "moderate_rec_min_week", "sedentary_min",
+]
 
-    Returns
-    -------
-    pandas.DataFrame
-        DataFrame with additional engineered feature columns.
-    """
-    raise NotImplementedError
+RF_OPTIONAL_FEATURES = [
+    "sleep_hours", "vigorous_rec_min_week", "smoked_100_cigs",
+    "avg_drinks_per_day",
+]
 
+KMEANS_FEATURES = [
+    "age", "sex", "race_eth", "education", "income_poverty_ratio",
+    "food_security_adult",
+]
 
-def select_features(
-    df: pd.DataFrame,
-    target: pd.Series,
-    method: str = "model",
-) -> list[str]:
-    """Select the feature columns to use for modeling.
-
-    Parameters
-    ----------
-    df
-        DataFrame of candidate features.
-    target
-        The metabolic-health target (see :mod:`src.target`).
-    method
-        Selection method, e.g. ``"correlation"``, ``"model"`` (importance),
-        or ``"rfe"``.
-
-    Returns
-    -------
-    list of str
-        Names of the selected feature columns.
-    """
-    raise NotImplementedError
+NEVER_FEATURES = [
+    "uid", "SEQN", "cycle", "weight_mec_2yr", "weight_int_2yr",
+    "weight_fasting_2yr", "svy_psu", "svy_stratum", "bmi", "ldl",
+    "total_chol",
+]
 
 
-def build_feature_matrix(
-    df: pd.DataFrame,
-    features: Sequence[str],
-) -> pd.DataFrame:
-    """Assemble the final model-ready feature matrix.
+def assert_columns_exist(df: pd.DataFrame, columns: Sequence[str], name: str) -> None:
+    missing = sorted(set(columns).difference(df.columns))
+    if missing:
+        raise KeyError(f"{name} contains columns missing from the dataset: {missing}")
 
-    Parameters
-    ----------
-    df
-        DataFrame containing at least the columns in ``features``.
-    features
-        Column names to include (see :func:`select_features`).
 
-    Returns
-    -------
-    pandas.DataFrame
-        The ``X`` matrix ready for model training.
-    """
-    raise NotImplementedError
+def assert_no_leakage(columns: Sequence[str], matrix_name: str = "X") -> None:
+    forbidden = sorted(set(columns).intersection(LABEL_COLUMNS + NEVER_FEATURES))
+    if forbidden:
+        raise ValueError(f"{matrix_name} contains leakage/forbidden columns: {forbidden}")
+
+
+def build_feature_matrix(df: pd.DataFrame, columns: Sequence[str], name: str = "X") -> pd.DataFrame:
+    assert_columns_exist(df, columns, name)
+    assert_no_leakage(columns, name)
+    return df.loc[:, list(columns)].copy()
