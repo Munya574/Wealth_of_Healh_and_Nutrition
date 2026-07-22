@@ -1,0 +1,51 @@
+column,role,dtype,missing_pct,description
+uid,tracking / excluded,object,0.0,Unique row id (cycle + SEQN); the safe participant key
+SEQN,tracking / excluded,int64,0.0,NHANES respondent sequence number (unique within a cycle only)
+cycle,tracking / excluded,object,0.0,NHANES cycle: 2013-2014 / 2015-2016 / 2017-2018
+sex,kmeans_context,float64,0.0,"Sex (1=Male, 2=Female); also applies sex-specific waist/HDL cutoffs"
+age,kmeans_context,float64,0.0,Age in years (adults >= 20 only)
+race_eth,kmeans_context,float64,0.0,Race/Hispanic origin (RIDRETH3)
+education,kmeans_context,float64,0.15,Adult education level (DMDEDUC2)
+income_poverty_ratio,kmeans_context,float64,11.04,Ratio of family income to poverty (INDFMPIR)
+bmi,tracking / excluded,float64,5.6,Body mass index (excluded; EDA only)
+waist_cm,label_construction (excluded from RF/LR),float64,10.17,"Waist circumference, cm (waist label component)"
+bp_systolic,"source / eligibility (retained, not a model input)",float64,12.52,"First systolic reading, raw (superseded by bp_systolic_mean)"
+bp_diastolic,"source / eligibility (retained, not a model input)",float64,12.52,"First diastolic reading, raw (superseded by bp_diastolic_mean)"
+hba1c,label_construction (excluded from RF/LR),float64,8.48,"Glycohemoglobin %, HbA1c (blood-sugar label component)"
+hdl,label_construction (excluded from RF/LR),float64,9.5,"HDL cholesterol, mg/dL (HDL label component)"
+total_chol,tracking / excluded,float64,9.5,"Total cholesterol, mg/dL (excluded; EDA only)"
+triglycerides,label_construction (excluded from RF/LR),float64,57.79,"Triglycerides, mg/dL (triglyceride label component; fasting subsample)"
+ldl,tracking / excluded,float64,58.31,"LDL cholesterol, mg/dL (excluded; fasting subsample; EDA only)"
+energy_kcal,rf_core (modifiable behavior),float64,13.2,"Day-1 energy intake, kcal"
+protein_g,rf_core (modifiable behavior),float64,13.2,"Day-1 protein, g"
+carb_g,rf_core (modifiable behavior),float64,13.2,"Day-1 carbohydrate, g"
+sugar_g,rf_core (modifiable behavior),float64,13.2,"Day-1 total sugars, g"
+fiber_g,rf_core (modifiable behavior),float64,13.2,"Day-1 dietary fiber, g"
+fat_total_g,rf_core (modifiable behavior),float64,13.2,"Day-1 total fat, g"
+fat_sat_g,rf_core (modifiable behavior),float64,13.2,"Day-1 saturated fat, g"
+sodium_mg,rf_core (modifiable behavior),float64,13.2,"Day-1 sodium, mg"
+vigorous_rec_activity,"source / eligibility (retained, not a model input)",float64,0.01,"Any vigorous recreational activity, yes/no source (PAQ650)"
+moderate_rec_activity,"source / eligibility (retained, not a model input)",float64,0.02,"Any moderate recreational activity, yes/no source (PAQ665)"
+sedentary_min,rf_core (modifiable behavior),float64,0.75,"Sedentary minutes/day (PAD680, sentinels cleaned)"
+smoked_100_cigs,rf_optional (sensitivity only),float64,0.08,"Smoked >=100 cigarettes in life, yes/no (SMQ020)"
+avg_drinks_per_day,rf_optional (sensitivity only),float64,41.15,Average alcoholic drinks per day (ALQ130)
+food_security_adult,kmeans_context,float64,3.55,Adult household food-security category (FSDAD)
+sleep_hours,rf_optional (sensitivity only),float64,0.52,Usual sleep hours (SLD010H/SLD012 reconciled)
+bp_systolic_mean,label_construction (excluded from RF/LR),float64,7.92,Mean of valid repeated systolic readings (BP label component)
+bp_diastolic_mean,label_construction (excluded from RF/LR),float64,7.92,Mean of valid repeated diastolic readings (BP label component)
+bp_valid_reading_count,"source / eligibility (retained, not a model input)",float64,4.28,Number of valid systolic readings in the mean
+diet_recall_status,"source / eligibility (retained, not a model input)",float64,4.28,Day-1 recall status (DR1DRSTZ)
+potassium_mg,rf_core (modifiable behavior),float64,13.2,"Day-1 potassium, mg (recovered from DR1TPOTA)"
+diet_recall_reliable,"source / eligibility (retained, not a model input)",object,4.28,True when DR1DRSTZ==1; gates the core RF diet sample
+vigorous_rec_min_week,rf_optional (sensitivity only),float64,0.07,Derived vigorous recreational minutes/week
+moderate_rec_min_week,rf_core (modifiable behavior),float64,0.13,Derived moderate recreational minutes/week
+waist_flag,label_construction (excluded from RF/LR),float64,10.17,Waist component positive (nullable)
+bp_flag,label_construction (excluded from RF/LR),float64,7.92,Blood-pressure component positive (nullable)
+triglycerides_flag,label_construction (excluded from RF/LR),float64,57.79,Triglycerides component positive (nullable)
+hdl_flag,label_construction (excluded from RF/LR),float64,9.5,Low-HDL component positive (nullable)
+hba1c_flag,label_construction (excluded from RF/LR),float64,8.48,HbA1c component positive (nullable)
+metabolic_component_count_known,label_construction (excluded from RF/LR),float64,4.5,Count of observed positive components
+metabolic_component_known_n,label_construction (excluded from RF/LR),int64,0.0,Number of observed (non-missing) components
+metabolic_syndrome_strict,label_construction (excluded from RF/LR),float64,60.82,Label using all 5 observed components (audit)
+metabolic_syndrome,label_construction (excluded from RF/LR),float64,28.91,PRIMARY label: strict + deterministic triglyceride recovery
+label_basis,label_construction (excluded from RF/LR),object,16.54,How the label was decided (all_5 / recovered / unresolved)
